@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "taxonomy-synthesis"
+version = "0.1.0"
+description = "An AI-driven framework for synthesizing adaptive taxonomies, enabling automated data categorization and classification within dynamic hierarchical structures."
+authors = ["Sebastian Sosa <1sebastian1sosa1@gmail.com>"]
+readme = "README.md"
+packages = [{include = "taxonomy_synthesis"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pydantic = "^2.8.2"
+openai = "^1.42.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

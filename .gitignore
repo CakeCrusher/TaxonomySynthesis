@@ -1,3 +1,5 @@
 .venv
 consumer_dict.txt
 .env
+.pytest_cache
+__pycache__
