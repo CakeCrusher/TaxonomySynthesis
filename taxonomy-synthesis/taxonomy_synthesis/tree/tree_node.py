@@ -49,3 +49,16 @@ class TreeNode:
         for child in self.children:
             all_items.extend(child.get_all_items())
         return all_items
+
+    def print_tree(self, level: int = 0) -> str:
+        """
+        Recursively print the tree structure starting from the current node.
+        """
+        indent = "  " * level
+        items_str = ", ".join(item.id for item in self.items)
+        result = f"{indent}{self.value.name}: [{items_str}]\n"
+        
+        for child in self.children:
+            result += child.print_tree(level + 1)
+        
+        return result

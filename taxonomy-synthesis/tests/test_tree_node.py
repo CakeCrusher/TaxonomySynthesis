@@ -129,3 +129,49 @@ def test_get_all_items():
     assert item1 in all_items
     assert item2 in all_items
     assert item3 in all_items
+
+
+def test_print_tree():
+    # Setup
+    root_category = Category(name="ROOT", description="Root category")
+    child_category_1 = Category(name="CHILD1", description="Child category 1")
+    child_category_2 = Category(name="CHILD2", description="Child category 2")
+    child_category_2a = Category(
+        name="CHILD2_CHILDA",
+        description="Child category 2A"
+    )
+
+    root_node = TreeNode(value=root_category)
+    child_node_1 = TreeNode(value=child_category_1)
+    child_node_2 = TreeNode(value=child_category_2)
+    child_node_2a = TreeNode(value=child_category_2a)
+
+    root_node.add_child(child_node_1)
+    root_node.add_child(child_node_2)
+    child_node_2.add_child(child_node_2a)
+
+    # Adding items
+    item_dict1 = {"id": "ITEM1_ID", "name": "Item 1", "value": 10}
+    item_dict2 = {"id": "ITEM2_ID", "name": "Item 2", "value": 20}
+    item_dict3 = {"id": "ITEM3_ID", "name": "Item 3", "value": 30}
+
+    item1 = Item(**item_dict1)
+    item2 = Item(**item_dict2)
+    item3 = Item(**item_dict3)
+
+    child_node_1.add_items([item1])
+    child_node_2a.add_items([item2, item3])
+
+    # Execute
+    output = root_node.print_tree()
+
+    # Expected Output
+    expected_output = (
+        "ROOT: []\n"
+        "  CHILD1: [ITEM1_ID]\n"
+        "  CHILD2: []\n"
+        "    CHILD2_CHILDA: [ITEM2_ID, ITEM3_ID]\n"
+    )
+
+    # Assert
+    assert output == expected_output
