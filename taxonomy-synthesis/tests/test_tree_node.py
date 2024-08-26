@@ -96,3 +96,36 @@ def test_remove_item():
     assert len(node.items) == 1
     assert node.items[0] == item2
     assert item1 not in node.items
+
+
+def test_get_all_items():
+    # Setup
+    parent_category = Category(name="Parent", description="Parent category")
+    child_category_1 = Category(name="Child1", description="Child category 1")
+    child_category_2 = Category(name="Child2", description="Child category 2")
+
+    parent_node = TreeNode(value=parent_category)
+    child_node_1 = TreeNode(value=child_category_1)
+    child_node_2 = TreeNode(value=child_category_2)
+
+    # Adding children to parent node
+    parent_node.add_child(child_node_1)
+    parent_node.add_child(child_node_2)
+
+    # Adding items to nodes
+    item1 = Item(id="1")
+    item2 = Item(id="2")
+    item3 = Item(id="3")
+
+    parent_node.add_items([item1])
+    child_node_1.add_items([item2])
+    child_node_2.add_items([item3])
+
+    # Execute
+    all_items = parent_node.get_all_items()
+
+    # Assert
+    assert len(all_items) == 3
+    assert item1 in all_items
+    assert item2 in all_items
+    assert item3 in all_items
