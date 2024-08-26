@@ -1,5 +1,5 @@
 import json
-from typing import List
+from typing import List, Optional
 from taxonomy_synthesis.models import Item, Category
 from openai import OpenAI
 from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam  # noqa
@@ -31,9 +31,13 @@ ITEMS:
     def generate_categories(
         self,
         items: List[Item],
-        parent_category: Category
+        parent_category: Category,
+        max_categories: Optional[int] = None
     ) -> List[Category]:
         self.initialize_chat(items, parent_category)
+
+        if max_categories:
+            self.max_categories = max_categories
 
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",
