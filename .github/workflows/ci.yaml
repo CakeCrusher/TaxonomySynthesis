@@ -27,15 +27,17 @@ jobs:
 
       - name: Install dependencies
         run: |
+          cd taxonomy-synthesis
           python -m pip install --upgrade pip
           pip install poetry
           poetry install
 
       - name: Run pre-commit hooks
-        uses: pre-commit/action@v3.0.0
-        with:
-          extra_args: --all-files
+        run: |
+          cd taxonomy-synthesis
+          poetry run pre-commit run --all-files
 
       - name: Run tests with pytest
         run: |
+          cd taxonomy-synthesis
           poetry run pytest
