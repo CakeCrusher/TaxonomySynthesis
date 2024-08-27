@@ -42,11 +42,18 @@ jobs:
           cd taxonomy-synthesis
           poetry run pytest
 
+      - name: Calculate new version
+        id: version
+        run: |
+          current_version=$(poetry version -s)
+          new_version=$(echo $current_version | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          echo "NEW_VERSION=$new_version" >> $GITHUB_OUTPUT
+        
       - name: Bump version and create a GitHub release
         if: startsWith(github.ref, 'refs/heads/')
         run: |
           cd taxonomy-synthesis
-          poetry run bump2version patch --allow-dirty
+          poetry run bump2version patch --new-version ${{ steps.version.outputs.NEW_VERSION }} --allow-dirty
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
