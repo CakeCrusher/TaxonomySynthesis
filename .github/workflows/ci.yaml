@@ -46,7 +46,7 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/')
         run: |
           cd taxonomy-synthesis
-          poetry run bump2version patch
+          poetry run bump2version patch --allow-dirty
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
