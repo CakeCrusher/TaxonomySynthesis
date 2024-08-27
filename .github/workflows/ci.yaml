@@ -42,10 +42,10 @@ jobs:
           cd taxonomy-synthesis
           poetry run pytest
 
-          - name: Check pyproject.toml
-          run: |
-            cd taxonomy-synthesis
-            cat pyproject.toml
+      - name: Check pyproject.toml
+        run: |
+          cd taxonomy-synthesis
+          cat pyproject.toml
   
       - name: Check for bump2version config
         run: |
