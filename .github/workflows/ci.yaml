@@ -41,11 +41,14 @@ jobs:
         run: |
           cd taxonomy-synthesis
           poetry run pytest
-          - name: Bump version and create a GitHub release
-          if: github.event_name == 'push'
-          run: |
-            cd taxonomy-synthesis
-            poetry run bump2version patch
+
+      - name: Bump version and create a GitHub release
+        if: startsWith(github.ref, 'refs/heads/')
+        run: |
+          cd taxonomy-synthesis
+          poetry run bump2version patch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
       - name: Publish to PyPI
         if: github.event_name == 'push'
