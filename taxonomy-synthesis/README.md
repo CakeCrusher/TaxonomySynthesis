@@ -1,19 +1,19 @@
-# taxonomy-synthesis
+# `taxonomy-synthesis`
 _TLDR: copy this README and throw it into ChatGPT. It will figure things out for you. (will create a "GPT" soon)_
 
 An AI-driven framework for synthesizing adaptive taxonomies, enabling automated data categorization and classification within dynamic hierarchical structures.
 
-### Explain Like I'm 5 🤔
+## Explain Like I'm 5 🤔
 Imagine you have a big box of different animals, but you’re not sure how to group them. You know there are "Mammals" and "Reptiles," but you don’t know the smaller groups they belong to, like which mammals are more similar or which reptiles go together. This tool uses smart AI helpers to figure out those smaller groups for you, like finding out there are "Rodents" and "Primates" among the mammals, and "Lizards" and "Snakes" among the reptiles. It then helps you sort all the animals into the right groups automatically, keeping everything neatly organized!
 
-## Features
+## Features 🛠️
 
 - **Manual and Automatic Taxonomy Generation**: Flexibly create taxonomy trees manually or automatically from arbitrary items.
 - **Recursive Tree Primitives**: Utilize a tree structure that supports recursive operations, making it easy to manage hierarchical data.
 - **AI-Generated Subcategories**: Automatically generate subcategories using AI models based on the context and data provided.
 - **AI Classification**: Automatically classify items into appropriate categories using advanced AI models.
 
-## Quickstart Guide ([colab](https://colab.research.google.com/drive/1BgUYdeT6aP23nYm2zopjLNKAB_9-7Hp2?usp=sharing))
+## Quickstart Guide ([colab](https://colab.research.google.com/drive/1BgUYdeT6aP23nYm2zopjLNKAB_9-7Hp2?usp=sharing)) 🚀
 
 
 In this quickstart, we'll walk you through the process of using `taxonomy-synthesis` to create a simplified phylogenetic tree for a list of animals. We'll demonstrate how to initialize the package, set up an OpenAI client, manually create a taxonomy tree, generate subcategories automatically, and classify items using AI.
@@ -99,6 +99,13 @@ classified_items = operator.classify_items(root_node, item_objects)
 print("After initial classification:")
 print(root_node.print_tree())
 ```
+_Output:_
+```
+After initial classification:
+Animals: []
+  Mammals: [🦁, 🐅, 🐘, 🐎, 🐄, 🐕]
+  Reptiles: [🐊, 🐍, 🐢, 🦎]
+```
 
 ### 6. Generate Subcategories for Mammals
 
@@ -117,6 +124,13 @@ new_categories = operator.generate_subcategories(mammal_node)
 print("Generated subcategories under 'Mammals':")
 print(mammal_node.print_tree())
 ```
+_Output:_
+```
+Generated subcategories under 'Mammals':
+Mammals: [🦁, 🐅, 🐘, 🐎, 🐄, 🐕]
+  wild_mammals: []
+  domestic_mammals: []
+```
 
 ### 7. Reclassify Items under Mammals
 
@@ -129,6 +143,13 @@ classified_items = operator.classify_items(mammal_node, mammal_node.get_all_item
 print("After reclassification under 'Mammals':")
 print(root_node.print_tree())
 ```
+_Output:_
+```
+After reclassification under 'Mammals':
+Mammals: []
+  wild_mammals: [🦁, 🐅, 🐘]
+  domestic_mammals: [🐎, 🐄, 🐕]
+```
 
 ### 8. Print the Final Tree Structure
 
@@ -139,14 +160,23 @@ Finally, print the entire tree to see the categorized structure.
 print("Final taxonomy tree structure:")
 print(root_node.print_tree())
 ```
+_Output:_
+```
+Final taxonomy tree structure:
+Animals: []
+  Mammals: []
+    wild_mammals: [🦁, 🐅, 🐘]
+    domestic_mammals: [🐎, 🐄, 🐕]
+  Reptiles: [🐊, 🐍, 🐢, 🦎]
+```
 
-### System Diagram
+## System Diagram 🎨
 
 For a visual representation of the system architecture and its components, refer to the following diagram:
 
 ![v1 Class Diagram](https://github.com/user-attachments/assets/ffdbe2b1-4ad4-4b2b-9a72-5b14b2f3adfa)
 
-### Contributing
+## Contributing 🤗
 
 Contributions are welcome! To get started, follow these steps to set up your development environment:
 
