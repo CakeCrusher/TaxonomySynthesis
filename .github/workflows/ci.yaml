@@ -42,19 +42,43 @@ jobs:
           cd taxonomy-synthesis
           poetry run pytest
 
+          - name: Check pyproject.toml
+          run: |
+            cd taxonomy-synthesis
+            cat pyproject.toml
+  
+      - name: Check for bump2version config
+        run: |
+          cd taxonomy-synthesis
+          if [ -f .bumpversion.cfg ]; then
+            echo "bump2version config found"
+            cat .bumpversion.cfg
+          else
+            echo "No bump2version config found"
+          fi
+
       - name: Calculate new version
         id: version
         run: |
           cd taxonomy-synthesis
+          echo "Current directory: $(pwd)"
+          echo "Files in current directory:"
+          ls -la
           current_version=$(poetry version -s)
+          echo "Current version: $current_version"
           new_version=$(echo $current_version | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          echo "New version: $new_version"
           echo "NEW_VERSION=$new_version" >> $GITHUB_OUTPUT
-        
+
       - name: Bump version and create a GitHub release
         if: startsWith(github.ref, 'refs/heads/')
         run: |
           cd taxonomy-synthesis
-          poetry run bump2version patch --new-version ${{ steps.version.outputs.NEW_VERSION }} --allow-dirty
+          echo "Current directory: $(pwd)"
+          echo "Files in current directory:"
+          ls -la
+          echo "Attempting to bump version to: ${{ steps.version.outputs.NEW_VERSION }}"
+          poetry run bump2version patch --new-version ${{ steps.version.outputs.NEW_VERSION }} --allow-dirty --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
