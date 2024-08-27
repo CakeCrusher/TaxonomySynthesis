@@ -71,41 +71,29 @@ CATEGORIES:
                     },
                 }
             ],
-            tool_choice={
-                "type": "function",
-                "function": {
-                    "name": "classifier"
-                }
-            },
+            tool_choice={"type": "function", "function": {"name": "classifier"}},
         )
 
         # Check if response has the expected structure
         if not response.choices or not response.choices[0].message.tool_calls:
-            raise ValueError(
-                "No tool calls found in the response from the model."
-            )
+            raise ValueError("No tool calls found in the response from the model.")
 
         tool_call = response.choices[0].message.tool_calls[0]
 
         # Check if tool_call is not None before attempting to access it
         if tool_call is None or tool_call.function.arguments is None:
-            raise ValueError(
-                "Tool call arguments are missing in the model response."
-            )
+            raise ValueError("Tool call arguments are missing in the model response.")
 
         classified_items_data = json.loads(tool_call.function.arguments)
 
         response_items = [
-            ResponseItem(**item)
-            for item in classified_items_data["classified_items"]
+            ResponseItem(**item) for item in classified_items_data["classified_items"]
         ]
 
         # Map response items to ClassifiedItem objects
         classified_items = [
             ClassifiedItem(
-                item=next(
-                    item for item in items if item.id == response_item.item_id
-                ),
+                item=next(item for item in items if item.id == response_item.item_id),
                 category=next(
                     category
                     for category in categories

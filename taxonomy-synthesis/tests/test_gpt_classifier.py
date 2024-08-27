@@ -25,14 +25,11 @@ def test_classify_items_success(mock_openai_client):
     item_dict1 = {"id": "1", "name": "Item 1", "value": 10}
     item_dict2 = {"id": "2", "name": "Item 2", "value": 20}
 
-    items = [
-        Item(**item_dict1),
-        Item(**item_dict2)
-    ]
-    
+    items = [Item(**item_dict1), Item(**item_dict2)]
+
     categories = [
         Category(name="Category 1", description="Description 1"),
-        Category(name="Category 2", description="Description 2")
+        Category(name="Category 2", description="Description 2"),
     ]
 
     mock_response = MagicMock()
@@ -45,8 +42,14 @@ def test_classify_items_success(mock_openai_client):
                             arguments=json.dumps(
                                 {
                                     "classified_items": [
-                                        {"item_id": "1", "category_name": "Category 1"},  # noqa: E501
-                                        {"item_id": "2", "category_name": "Category 2"}  # noqa: E501
+                                        {
+                                            "item_id": "1",
+                                            "category_name": "Category 1",
+                                        },  # noqa: E501
+                                        {
+                                            "item_id": "2",
+                                            "category_name": "Category 2",
+                                        },  # noqa: E501
                                     ]
                                 }
                             )
@@ -61,7 +64,7 @@ def test_classify_items_success(mock_openai_client):
 
     # Execute
     classified_items = classifier.classify_items(items, categories)
-    
+
     # Assert
     assert all(isinstance(item, ClassifiedItem) for item in classified_items)
     assert len(classified_items) == 2
@@ -88,8 +91,7 @@ def test_classify_items_no_tool_calls(mock_openai_client):
 
     # Execute & Assert
     with pytest.raises(
-        ValueError,
-        match="No tool calls found in the response from the model."
+        ValueError, match="No tool calls found in the response from the model."
     ):
         classifier.classify_items(items, categories)
 
@@ -108,11 +110,7 @@ def test_classify_items_missing_arguments(mock_openai_client):
     mock_response.choices = [
         MagicMock(
             message=MagicMock(
-                tool_calls=[
-                    MagicMock(
-                        function=MagicMock(arguments=None)
-                    )
-                ]
+                tool_calls=[MagicMock(function=MagicMock(arguments=None))]
             )
         )
     ]
@@ -121,7 +119,6 @@ def test_classify_items_missing_arguments(mock_openai_client):
 
     # Execute & Assert
     with pytest.raises(
-        ValueError,
-        match="Tool call arguments are missing in the model response."
+        ValueError, match="Tool call arguments are missing in the model response."
     ):
         classifier.classify_items(items, categories)

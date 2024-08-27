@@ -6,19 +6,11 @@ from taxonomy_synthesis.generator.taxonomy_generator import TaxonomyGenerator
 
 
 class NodeOperator:
-    def __init__(
-        self,
-        classifier: IClassifier,
-        generator: TaxonomyGenerator
-    ):
+    def __init__(self, classifier: IClassifier, generator: TaxonomyGenerator):
         self.classifier = classifier
         self.generator = generator
 
-    def classify_items(
-        self,
-        node: TreeNode,
-        items: List[Item]
-    ) -> List[ClassifiedItem]:
+    def classify_items(self, node: TreeNode, items: List[Item]) -> List[ClassifiedItem]:
         """
         Classify the given items, remove any duplicates from the tree, and assign them to appropriate categories within the specified TreeNode.
         """  # noqa: E501
@@ -30,7 +22,7 @@ class NodeOperator:
         for existing_item in all_items:
             if existing_item.id in item_ids_to_classify:
                 self._remove_item_from_tree(node, existing_item)
-        
+
         # Classify the new items
         classified_items = self.classifier.classify_items(items, categories)
 
@@ -41,26 +33,24 @@ class NodeOperator:
 
             # Find the appropriate category node
             category_node = next(
-                (child for child in node.children if child.value.name == category_name),  # noqa: E501
-                None
+                (
+                    child
+                    for child in node.children
+                    if child.value.name == category_name
+                ),  # noqa: E501
+                None,
             )
 
             if category_node is None:
                 # Raise error if category node is not found
-                raise ValueError(
-                    f"Category '{category_name}' not found in the tree"
-                )
+                raise ValueError(f"Category '{category_name}' not found in the tree")
 
             # Add the item to the category node
             category_node.add_items([item])
 
         return classified_items
 
-    def _remove_item_from_tree(
-        self, 
-        node: TreeNode, 
-        item: Item
-    ) -> None:
+    def _remove_item_from_tree(self, node: TreeNode, item: Item) -> None:
         """
         Helper method to remove an item from the tree starting from the given node.
         """  # noqa: E501
@@ -73,9 +63,7 @@ class NodeOperator:
                 self._remove_item_from_tree(child, item)
 
     def generate_subcategories(
-        self,
-        node: TreeNode,
-        max_categories: Optional[int] = None
+        self, node: TreeNode, max_categories: Optional[int] = None
     ) -> List[Category]:
         """
         Generate subcategories for the given TreeNode based on its items and a maximum number of categories.
@@ -89,11 +77,7 @@ class NodeOperator:
         self.add_subcategories(node, new_categories)
         return new_categories
 
-    def add_subcategories(
-        self,
-        node: TreeNode,
-        categories: List[Category]
-    ) -> None:
+    def add_subcategories(self, node: TreeNode, categories: List[Category]) -> None:
         """
         Add new categories as children to the specified TreeNode.
         """

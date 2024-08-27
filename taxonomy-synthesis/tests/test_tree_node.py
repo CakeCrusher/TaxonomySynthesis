@@ -3,10 +3,7 @@ from taxonomy_synthesis.models import Item, Category
 
 
 def test_tree_node_initialization():
-    category = Category(
-        name="Root Category",
-        description="Root Description"
-    )
+    category = Category(name="Root Category", description="Root Description")
     node = TreeNode(value=category)
 
     assert node.value == category
@@ -16,14 +13,8 @@ def test_tree_node_initialization():
 
 
 def test_add_child():
-    root_category = Category(
-        name="Root Category",
-        description="Root Description"
-    )
-    child_category = Category(
-        name="Child Category",
-        description="Child Description"
-    )
+    root_category = Category(name="Root Category", description="Root Description")
+    child_category = Category(name="Child Category", description="Child Description")
 
     root_node = TreeNode(value=root_category)
     child_node = TreeNode(value=child_category)
@@ -36,14 +27,8 @@ def test_add_child():
 
 
 def test_remove_child():
-    root_category = Category(
-        name="Root Category",
-        description="Root Description"
-    )
-    child_category = Category(
-        name="Child Category",
-        description="Child Description"
-    )
+    root_category = Category(name="Root Category", description="Root Description")
+    child_category = Category(name="Child Category", description="Child Description")
 
     root_node = TreeNode(value=root_category)
     child_node = TreeNode(value=child_category)
@@ -56,10 +41,7 @@ def test_remove_child():
 
 
 def test_add_items():
-    category = Category(
-        name="Category",
-        description="Description"
-    )
+    category = Category(name="Category", description="Description")
     node = TreeNode(value=category)
 
     item_dict1 = {"id": "1", "name": "Item 1", "value": 10}
@@ -78,10 +60,7 @@ def test_add_items():
 
 
 def test_remove_item():
-    category = Category(
-        name="Category",
-        description="Description"
-    )
+    category = Category(name="Category", description="Description")
     node = TreeNode(value=category)
 
     item_dict1 = {"id": "1", "name": "Item 1", "value": 10}
@@ -136,10 +115,7 @@ def test_print_tree():
     root_category = Category(name="ROOT", description="Root category")
     child_category_1 = Category(name="CHILD1", description="Child category 1")
     child_category_2 = Category(name="CHILD2", description="Child category 2")
-    child_category_2a = Category(
-        name="CHILD2_CHILDA",
-        description="Child category 2A"
-    )
+    child_category_2a = Category(name="CHILD2_CHILDA", description="Child category 2A")
 
     root_node = TreeNode(value=root_category)
     child_node_1 = TreeNode(value=child_category_1)

@@ -21,22 +21,16 @@ def test_generate_categories_success(mock_openai_client):
     generator = TaxonomyGenerator(
         client=mock_openai_client,
         max_categories=3,
-        generation_method="Categorize based on type"
+        generation_method="Categorize based on type",
     )
 
     # Creating Item objects with additional attributes using **kwargs
     item_dict1 = {"id": "1", "name": "Item 1", "value": 10}
     item_dict2 = {"id": "2", "name": "Item 2", "value": 20}
 
-    items = [
-        Item(**item_dict1),
-        Item(**item_dict2)
-    ]
-    
-    parent_category = Category(
-        name="Parent Category",
-        description="Parent Description"
-    )
+    items = [Item(**item_dict1), Item(**item_dict2)]
+
+    parent_category = Category(name="Parent Category", description="Parent Description")
 
     mock_response = MagicMock()
     mock_response.choices = [
@@ -48,8 +42,14 @@ def test_generate_categories_success(mock_openai_client):
                             arguments=json.dumps(
                                 {
                                     "categories": [
-                                        {"name": "Subcategory 1", "description": "Description 1"},  # noqa: E501
-                                        {"name": "Subcategory 2", "description": "Description 2"}  # noqa: E501
+                                        {
+                                            "name": "Subcategory 1",
+                                            "description": "Description 1",
+                                        },  # noqa: E501
+                                        {
+                                            "name": "Subcategory 2",
+                                            "description": "Description 2",
+                                        },  # noqa: E501
                                     ]
                                 }
                             )
@@ -64,7 +64,7 @@ def test_generate_categories_success(mock_openai_client):
 
     # Execute
     categories = generator.generate_categories(items, parent_category)
-    
+
     # Assert
     assert len(categories) == 2
     assert categories[0].name == "Subcategory 1"
@@ -78,17 +78,14 @@ def test_generate_categories_no_tool_calls(mock_openai_client):
     generator = TaxonomyGenerator(
         client=mock_openai_client,
         max_categories=3,
-        generation_method="Categorize based on type"
+        generation_method="Categorize based on type",
     )
 
     # Creating Item objects with additional attributes using **kwargs
     item_dict1 = {"id": "1", "name": "Item 1", "value": 10}
     items = [Item(**item_dict1)]
 
-    parent_category = Category(
-        name="Parent Category",
-        description="Parent Description"
-    )
+    parent_category = Category(name="Parent Category", description="Parent Description")
 
     mock_response = MagicMock()
     mock_response.choices = []
@@ -97,8 +94,7 @@ def test_generate_categories_no_tool_calls(mock_openai_client):
 
     # Execute & Assert
     with pytest.raises(
-        ValueError,
-        match="No tool calls found in the response from the model."
+        ValueError, match="No tool calls found in the response from the model."
     ):
         generator.generate_categories(items, parent_category)
 
@@ -108,27 +104,20 @@ def test_generate_categories_missing_arguments(mock_openai_client):
     generator = TaxonomyGenerator(
         client=mock_openai_client,
         max_categories=3,
-        generation_method="Categorize based on type"
+        generation_method="Categorize based on type",
     )
 
     # Creating Item objects with additional attributes using **kwargs
     item_dict1 = {"id": "1", "name": "Item 1", "value": 10}
     items = [Item(**item_dict1)]
 
-    parent_category = Category(
-        name="Parent Category",
-        description="Parent Description"
-    )
+    parent_category = Category(name="Parent Category", description="Parent Description")
 
     mock_response = MagicMock()
     mock_response.choices = [
         MagicMock(
             message=MagicMock(
-                tool_calls=[
-                    MagicMock(
-                        function=MagicMock(arguments=None)
-                    )
-                ]
+                tool_calls=[MagicMock(function=MagicMock(arguments=None))]
             )
         )
     ]
@@ -137,8 +126,7 @@ def test_generate_categories_missing_arguments(mock_openai_client):
 
     # Execute & Assert
     with pytest.raises(
-        ValueError,
-        match="Tool call arguments are missing in the model response."
+        ValueError, match="Tool call arguments are missing in the model response."
     ):
         generator.generate_categories(items, parent_category)
 
@@ -148,7 +136,7 @@ def test_refine_categories_success(mock_openai_client):
     generator = TaxonomyGenerator(
         client=mock_openai_client,
         max_categories=3,
-        generation_method="Categorize based on type"
+        generation_method="Categorize based on type",
     )
 
     feedback = "Please split the categories further."
@@ -163,8 +151,14 @@ def test_refine_categories_success(mock_openai_client):
                             arguments=json.dumps(
                                 {
                                     "categories": [
-                                        {"name": "Subcategory 1.1", "description": "Description 1.1"},  # noqa: E501
-                                        {"name": "Subcategory 1.2", "description": "Description 1.2"}  # noqa: E501
+                                        {
+                                            "name": "Subcategory 1.1",
+                                            "description": "Description 1.1",
+                                        },  # noqa: E501
+                                        {
+                                            "name": "Subcategory 1.2",
+                                            "description": "Description 1.2",
+                                        },  # noqa: E501
                                     ]
                                 }
                             )
@@ -179,7 +173,7 @@ def test_refine_categories_success(mock_openai_client):
 
     # Execute
     refined_categories = generator.refine_categories(feedback)
-    
+
     # Assert
     assert len(refined_categories) == 2
     assert refined_categories[0].name == "Subcategory 1.1"

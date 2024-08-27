@@ -3,11 +3,7 @@ from taxonomy_synthesis.models import Item, Category
 
 
 class TreeNode:
-    def __init__(
-        self, 
-        value: Category, 
-        parent: Optional["TreeNode"] = None
-    ):
+    def __init__(self, value: Category, parent: Optional["TreeNode"] = None):
         self.value = value
         self.children: List["TreeNode"] = []
         self.parent = parent
@@ -37,7 +33,7 @@ class TreeNode:
     def remove_item(self, item: Item) -> None:
         """
         Remove an item from the current node.
-    """
+        """
         if item in self.items:
             self.items.remove(item)
 
@@ -57,8 +53,8 @@ class TreeNode:
         indent = "  " * level
         items_str = ", ".join(item.id for item in self.items)
         result = f"{indent}{self.value.name}: [{items_str}]\n"
-        
+
         for child in self.children:
             result += child.print_tree(level + 1)
-        
+
         return result

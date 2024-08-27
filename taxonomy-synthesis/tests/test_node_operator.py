@@ -23,9 +23,7 @@ def mock_generator():
 
 def test_classify_items(mock_classifier, mock_generator):
     # Setup
-    node_operator = NodeOperator(
-        classifier=mock_classifier, generator=mock_generator
-    )
+    node_operator = NodeOperator(classifier=mock_classifier, generator=mock_generator)
 
     parent_category = Category(name="Parent", description="Parent category")
     child_category_1 = Category(name="Child1", description="Child category 1")
@@ -37,10 +35,7 @@ def test_classify_items(mock_classifier, mock_generator):
     item_dict1 = {"id": "1", "name": "Item 1", "value": 10}
     item_dict2 = {"id": "2", "name": "Item 2", "value": 20}
 
-    items = [
-        Item(**item_dict1),
-        Item(**item_dict2)
-    ]
+    items = [Item(**item_dict1), Item(**item_dict2)]
 
     parent_node.add_items([items[0]])
     child_node_1.add_items([items[1]])
@@ -48,10 +43,7 @@ def test_classify_items(mock_classifier, mock_generator):
     # Mock classifier behavior
     classified_item1 = ClassifiedItem(item=items[0], category=child_category_1)
     classified_item2 = ClassifiedItem(item=items[1], category=child_category_1)
-    mock_classifier.classify_items.return_value = [
-        classified_item1,
-        classified_item2
-    ]
+    mock_classifier.classify_items.return_value = [classified_item1, classified_item2]
 
     # Execute
     classified_items = node_operator.classify_items(parent_node, items)
@@ -66,9 +58,7 @@ def test_classify_items(mock_classifier, mock_generator):
 
 def test_classify_items_with_missing_category(mock_classifier, mock_generator):
     # Setup
-    node_operator = NodeOperator(
-        classifier=mock_classifier, generator=mock_generator
-    )
+    node_operator = NodeOperator(classifier=mock_classifier, generator=mock_generator)
 
     parent_category = Category(name="Parent", description="Parent category")
     parent_node = TreeNode(value=parent_category)
@@ -80,18 +70,13 @@ def test_classify_items_with_missing_category(mock_classifier, mock_generator):
 
     # Mock classifier behavior with a non-existent category
     non_existent_category = Category(
-        name="NonExistent",
-        description="Non-existent category"
+        name="NonExistent", description="Non-existent category"
     )
-    classified_item1 = ClassifiedItem(
-        item=items[0],
-        category=non_existent_category
-    )
+    classified_item1 = ClassifiedItem(item=items[0], category=non_existent_category)
     mock_classifier.classify_items.return_value = [classified_item1]
 
     # Execute & Assert
     with pytest.raises(
-        ValueError,
-        match="Category 'NonExistent' not found in the tree"
+        ValueError, match="Category 'NonExistent' not found in the tree"
     ):
         node_operator.classify_items(parent_node, items)
