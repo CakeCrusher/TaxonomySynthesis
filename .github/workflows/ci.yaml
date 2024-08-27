@@ -1,5 +1,8 @@
 name: CI
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
@@ -42,11 +45,38 @@ jobs:
           cd taxonomy-synthesis
           poetry run pytest
 
-      - name: Bump version and create a GitHub release
+      - name: Calculate new version
+        id: version
+        run: |
+          cd taxonomy-synthesis
+          echo "Current directory: $(pwd)"
+          echo "Files in current directory:"
+          ls -la
+          current_version=$(poetry version -s)
+          echo "Current version: $current_version"
+          new_version=$(echo $current_version | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          echo "New version: $new_version"
+          echo "NEW_VERSION=$new_version" >> $GITHUB_OUTPUT
+
+      - name: Bump version
         if: startsWith(github.ref, 'refs/heads/')
         run: |
           cd taxonomy-synthesis
-          poetry run bump2version patch --allow-dirty
+          poetry version patch
+          new_version=$(poetry version -s)
+          echo "NEW_VERSION=$new_version" >> $GITHUB_ENV
+      
+      - name: Commit and push changes
+        if: startsWith(github.ref, 'refs/heads/')
+        run: |
+          cd taxonomy-synthesis
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add pyproject.toml
+          git commit -m "Bump version to ${{ env.NEW_VERSION }}"
+          git tag v${{ env.NEW_VERSION }}
+          git push "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:${GITHUB_REF}
+          git push "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" v${{ env.NEW_VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
@@ -57,4 +87,5 @@ jobs:
         run: |
           cd taxonomy-synthesis
           poetry config pypi-token.pypi $PYPI_TOKEN
-          poetry publish --build --username __token__ --password $PYPI_TOKEN
+          poetry build
+          poetry publish
