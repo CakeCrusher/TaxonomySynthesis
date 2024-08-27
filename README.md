@@ -44,16 +44,16 @@ We'll start with a list of 10 animal species, each represented with an arbitrary
 ```python
 # Prepare a list of items (animals) with various attributes
 items = [
-    {"id": "🦁", "name": "Lion", "fun_fact": "King of the Jungle", "lifespan": "12 years", "emoji": "🦁"},
-    {"id": "🐅", "name": "Tiger", "fun_fact": "Largest cat species", "lifespan": "15 years", "emoji": "🐅"},
-    {"id": "🐘", "name": "Elephant", "fun_fact": "Largest land animal", "lifespan": "60 years", "emoji": "🐘"},
-    {"id": "🐎", "name": "Horse", "fun_fact": "Fastest mammal", "lifespan": "30 years", "emoji": "🐎"},
-    {"id": "🐄", "name": "Cow", "fun_fact": "Gives milk", "lifespan": "20 years", "emoji": "🐄"},
-    {"id": "🐕", "name": "Dog", "fun_fact": "Best friend of humans", "lifespan": "15 years", "emoji": "🐕"},
-    {"id": "🐊", "name": "Crocodile", "fun_fact": "Lives in water and land", "lifespan": "70 years", "emoji": "🐊"},
-    {"id": "🐍", "name": "Snake", "fun_fact": "No legs", "lifespan": "9 years", "emoji": "🐍"},
-    {"id": "🐢", "name": "Turtle", "fun_fact": "Can live over 100 years", "lifespan": "100 years", "emoji": "🐢"},
-    {"id": "🦎", "name": "Gecko", "fun_fact": "Can climb walls", "lifespan": "5 years", "emoji": "🦎"}
+  {"id": "🦘", "name": "Kangaroo", "fun_fact": "Can hop at high speeds", "lifespan_years": 23, "emoji": "🦘"},
+  {"id": "🐨", "name": "Koala", "fun_fact": "Sleeps up to 22 hours a day", "lifespan_years": 18, "emoji": "🐨"},
+  {"id": "🐘", "name": "Elephant", "fun_fact": "Largest land animal", "lifespan_years": 60, "emoji": "🐘"},
+  {"id": "🐕", "name": "Dog", "fun_fact": "Best friend of humans", "lifespan_years": 15, "emoji": "🐕"},
+  {"id": "🐄", "name": "Cow", "fun_fact": "Gives milk", "lifespan_years": 20, "emoji": "🐄"},
+  {"id": "🐁", "name": "Mouse", "fun_fact": "Can squeeze through tiny gaps", "lifespan_years": 2, "emoji": "🐁"},
+  {"id": "🐊", "name": "Crocodile", "fun_fact": "Lives in water and land", "lifespan_years": 70, "emoji": "🐊"},
+  {"id": "🐍", "name": "Snake", "fun_fact": "No legs", "lifespan_years": 9, "emoji": "🐍"},
+  {"id": "🐢", "name": "Turtle", "fun_fact": "Can live over 100 years", "lifespan_years": 100, "emoji": "🐢"},
+  {"id": "🦎", "name": "Gecko", "fun_fact": "Can climb walls", "lifespan_years": 5, "emoji": "🦎"}
 ]
 ```
 
@@ -103,7 +103,7 @@ _Output:_
 ```
 After initial classification:
 Animals: []
-  Mammals: [🦁, 🐅, 🐘, 🐎, 🐄, 🐕]
+  Mammals: [🦘, 🐨, 🐘, 🐕, 🐄, 🐁]
   Reptiles: [🐊, 🐍, 🐢, 🦎]
 ```
 
@@ -115,7 +115,11 @@ Use AI to automatically generate subcategories under `Mammals` based on the prov
 from taxonomy_synthesis.generator.taxonomy_generator import TaxonomyGenerator
 
 # Initialize the Taxonomy Generator
-generator = TaxonomyGenerator(client=client, max_categories=2, generation_method="example_method")
+generator = TaxonomyGenerator(
+    client=client,
+    max_categories=2,
+    generation_method="Create categories inaccordance to the philogenetic tree."
+)
 operator.generator = generator
 
 # Generate subcategories under Mammals
@@ -127,9 +131,9 @@ print(mammal_node.print_tree())
 _Output:_
 ```
 Generated subcategories under 'Mammals':
-Mammals: [🦁, 🐅, 🐘, 🐎, 🐄, 🐕]
-  wild_mammals: []
-  domestic_mammals: []
+Mammals: [🦘, 🐨, 🐘, 🐕, 🐄, 🐁]
+  marsupials: []
+  placentals: []
 ```
 
 ### 7. Reclassify Items under Mammals
@@ -147,8 +151,8 @@ _Output:_
 ```
 After reclassification under 'Mammals':
 Mammals: []
-  wild_mammals: [🦁, 🐅, 🐘]
-  domestic_mammals: [🐎, 🐄, 🐕]
+  marsupials: [🦘, 🐨]
+  placentals: [🐘, 🐕, 🐄, 🐁]
 ```
 
 ### 8. Print the Final Tree Structure
@@ -165,8 +169,8 @@ _Output:_
 Final taxonomy tree structure:
 Animals: []
   Mammals: []
-    wild_mammals: [🦁, 🐅, 🐘]
-    domestic_mammals: [🐎, 🐄, 🐕]
+    marsupials: [🦘, 🐨]
+    placentals: [🐘, 🐕, 🐄, 🐁]
   Reptiles: [🐊, 🐍, 🐢, 🦎]
 ```
 
