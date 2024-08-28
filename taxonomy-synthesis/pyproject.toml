@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "taxonomy-synthesis"
-version = "0.1.4"
+version = "0.1.5"
 description = "An AI-driven framework for synthesizing adaptive taxonomies, enabling automated data categorization and classification within dynamic hierarchical structures."
 authors = ["Sebastian Sosa <1sebastian1sosa1@gmail.com> @ OPENGPT LLC <https://opengpt.llc/>"]
 readme = "README.md"
