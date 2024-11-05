@@ -17,90 +17,151 @@ class GPTClassifier(IClassifier):
     def classify_items(
         self, items: List[Item], categories: List[Category]
     ) -> List[ClassifiedItem]:
-        prompt = f"""I will provide you with items and categories. You need to classify the items into the correct category.
-ITEMS:
-```
-{[item.dict() for item in items]}
-```
-CATEGORIES:
-```
-{[category.dict() for category in categories]}
-```"""  # noqa: E501
+        # if stringified items.model_dump() divided by 3 is longer than 60000 characters
+        # then divide the items into the upper bound of divinding the stringified items.model_dump() by 60000 characters
+        divisions = (
+            (len(str([item.model_dump() for item in items])) + 30000) // 60000
+        ) + 1
+        batches = [items]
+        if divisions > 1:
+            batches = [
+                items[i : i + len(items) // divisions]
+                for i in range(0, len(items), len(items) // divisions)
+            ]
 
-        response = self.client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
-            tools=[
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "classifier",
-                        "description": "Classify items into categories",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {
-                                "classified_items": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
+        classified_items = []
+        for batch in batches:
+            prompt = f"""I will provide you with items and categories. You need to classify the items into the correct category.
+    ITEMS:
+    ```
+    {[item.model_dump() for item in items]}
+    ```
+    CATEGORIES:
+    ```
+    {[category.model_dump() for category in categories]}
+    ```"""  # noqa: E501
+            item_ids = [item.id for item in batch]
+            category_names = [category.name for category in categories]
+            response = self.client.beta.chat.completions.parse(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                tools=[
+                    {
+                        "type": "function",
+                        "function": {
+                            "name": "classifier",
+                            "strict": True,
+                            "parameters": {
+                                "$defs": {
+                                    "classified_item": {
+                                        "description": "Matches the item with its category.",
                                         "properties": {
                                             "item_id": {
+                                                "description": "The id of the item",
+                                                "enum": item_ids,
+                                                "title": "Item Id",
                                                 "type": "string",
-                                                "description": "The id of the item",  # noqa: E501
                                             },
                                             "category_name": {
+                                                "description": "The name of the category",
+                                                "enum": category_names,
+                                                "title": "Category Name",
                                                 "type": "string",
-                                                "description": "The name of the category",  # noqa: E501
-                                                "enum": [
-                                                    category.name
-                                                    for category in categories
-                                                ],
                                             },
                                         },
-                                        "required": [
-                                            "item_id",
-                                            "category_name",
-                                        ],  # noqa: E501
+                                        "required": ["item_id", "category_name"],
+                                        "title": "ClassifiedItemModel",
+                                        "type": "object",
                                         "additionalProperties": False,
-                                    },
+                                    }
                                 },
+                                "description": "List of classified items.",
+                                "properties": {
+                                    "classified_items": {
+                                        "description": "List of classified items",
+                                        "items": {"$ref": "#/$defs/classified_item"},
+                                        "title": "Classified Items",
+                                        "type": "array",
+                                    }
+                                },
+                                "required": ["classified_items"],
+                                "title": "ClassifierModel",
+                                "type": "object",
+                                "additionalProperties": False,
                             },
-                            "required": ["classified_items"],
-                            "additionalProperties": False,
+                            "description": "List of classified items.",
                         },
-                    },
-                }
-            ],
-            tool_choice={"type": "function", "function": {"name": "classifier"}},
-        )
-
-        # Check if response has the expected structure
-        if not response.choices or not response.choices[0].message.tool_calls:
-            raise ValueError("No tool calls found in the response from the model.")
-
-        tool_call = response.choices[0].message.tool_calls[0]
-
-        # Check if tool_call is not None before attempting to access it
-        if tool_call is None or tool_call.function.arguments is None:
-            raise ValueError("Tool call arguments are missing in the model response.")
-
-        classified_items_data = json.loads(tool_call.function.arguments)
-
-        response_items = [
-            ResponseItem(**item) for item in classified_items_data["classified_items"]
-        ]
-
-        # Map response items to ClassifiedItem objects
-        classified_items = [
-            ClassifiedItem(
-                item=next(item for item in items if item.id == response_item.item_id),
-                category=next(
-                    category
-                    for category in categories
-                    if category.name == response_item.category_name
-                ),
+                    }
+                ],
             )
-            for response_item in response_items
-        ]
+
+            # Check if response has the expected structure
+            if (
+                not response.choices
+                or not response.choices[0]
+                or not response.choices[0].message.tool_calls
+            ):
+                raise ValueError("Model response is missing the expected structure.")
+
+            print("1")
+            response_items = (
+                response.choices[0].message.tool_calls[0].function.arguments
+            )
+            response_items = json.loads(response_items)
+            response_items = response_items["classified_items"]
+            print("2")
+
+            # filter out redundant items
+            unique_items = set()
+            for item in response_items:
+                unique_items.add(item["item_id"])
+
+            print("2.5")
+            response_items = [
+                response_item
+                for response_item in response_items
+                if response_item["item_id"] in unique_items
+            ]
+            print("3")
+
+            # missing items
+            missing_items = set(item_ids) - unique_items
+            if missing_items:
+                missing_items_list = [
+                    item for item in items if item.id in missing_items
+                ]
+                # recurse untill all items are classified
+                classified_items = self.classify_items(missing_items_list, categories)
+                response_items += [
+                    {
+                        "item_id": classified_item.item.id,
+                        "category_name": classified_item.category.name,
+                    }
+                    for classified_item in classified_items
+                ]
+                response_items += self.classify_items(missing_items_list, categories)
+
+            print("4")
+            response_items = [
+                ResponseItem(**response_item) for response_item in response_items
+            ]
+
+            print("5")
+            # Map response items to ClassifiedItem objects
+            response_items = [
+                ClassifiedItem(
+                    item=next(
+                        item for item in items if item.id == response_item.item_id
+                    ),
+                    category=next(
+                        category
+                        for category in categories
+                        if category.name == response_item.category_name
+                    ),
+                )
+                for response_item in response_items
+            ]
+
+            classified_items += response_items
 
         return classified_items
