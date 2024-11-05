@@ -11,19 +11,31 @@ from openai.types.chat.chat_completion_tool_message_param import (
 
 
 class TaxonomyGenerator:
-    def __init__(self, client: OpenAI, max_categories: int, generation_method: str):
+    def __init__(
+        self,
+        client: OpenAI,
+        generation_method: str = "",
+        max_categories: Optional[int] = None,
+    ):
         self.client = client
         self.max_categories = max_categories
         self.generation_method = generation_method
         self.chat_history: List[ChatCompletionMessageParam] = []
 
     def initialize_chat(self, items: List[Item], parent_category: Category):
+        if self.max_categories:
+            max_categories_prompt = (
+                f"You can create at most {self.max_categories} subcategories."
+            )
+        else:
+            max_categories_prompt = ""
         prompt = f"""I will provide you with items inside the parent category titled `{parent_category.name}` described as `{parent_category.description}`.
 You need to create subcategories according to the following guideline:
-There must be at most {self.max_categories} subcategories, and they should not duplicate the parent category '{parent_category.name}'. {self.generation_method}
+{max_categories_prompt}
+The created subcategories should not duplicate the parent category '{parent_category.name}'. {self.generation_method}
 ITEMS:
 ```
-{[item.dict() for item in items]}
+{[item.model_dump() for item in items]}
 ```"""  # noqa
         self.chat_history = [{"role": "user", "content": prompt}]
 
@@ -33,56 +45,74 @@ ITEMS:
         parent_category: Category,
         max_categories: Optional[int] = None,
     ) -> List[Category]:
+        item_token_count = len(str([item.model_dump() for item in items])) / 3
+        if item_token_count > 60000:
+            print(
+                "taxonomy-synthesis WARNING: Items will be truncated to just under 60000 tokens."
+            )
+            items = items.copy()
+            while item_token_count > 60000:
+                items.pop()
+                item_token_count = len(str([item.model_dump() for item in items])) / 3
+
         self.initialize_chat(items, parent_category)
 
         if max_categories:
             self.max_categories = max_categories
 
-        response = self.client.chat.completions.create(
+        response = self.client.beta.chat.completions.parse(
             model="gpt-4o-mini",
             messages=self.chat_history,
             tools=[
                 {
                     "type": "function",
                     "function": {
-                        "name": "category_creator",
-                        "description": "Create subcategories for items under the given parent category",  # noqa
+                        "name": "subcategories_list",
+                        "strict": True,
                         "parameters": {
-                            "type": "object",
+                            "$defs": {
+                                "category": {
+                                    "description": "Category for items.",
+                                    "properties": {
+                                        "name": {
+                                            "description": "Name of the category.",
+                                            "type": "string",
+                                        },
+                                        "description": {
+                                            "description": "Description and instruction for how to use this category.",
+                                            "type": "string",
+                                        },
+                                    },
+                                    "required": ["name", "description"],
+                                    "type": "object",
+                                    "additionalProperties": False,
+                                }
+                            },
+                            "description": "Matches the item with its category.",
                             "properties": {
                                 "categories": {
+                                    "description": "List of categories to match the item with.",
+                                    "items": {"$ref": "#/$defs/category"},
                                     "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "name": {
-                                                "type": "string",
-                                                "description": "Snake case name of the subcategory",  # noqa
-                                            },
-                                            "description": {
-                                                "type": "string",
-                                                "description": "The description of the subcategory",  # noqa
-                                            },
-                                        },
-                                        "required": ["name", "description"],
-                                        "additionalProperties": False,
-                                    },
-                                },
+                                }
                             },
                             "required": ["categories"],
+                            "type": "object",
                             "additionalProperties": False,
                         },
+                        "description": "Matches the item with its category.",
                     },
-                }
+                },
             ],
-            tool_choice={"type": "function", "function": {"name": "category_creator"}},
         )
 
         # Check if response has the expected structure
-        if not response.choices or not response.choices[0].message.tool_calls:
-            raise ValueError(
-                "No tool calls found in the response from the model."
-            )  # noqa
+        if (
+            not response.choices
+            or not response.choices[0]
+            or not response.choices[0].message.tool_calls
+        ):
+            raise ValueError("Model response is missing the expected structure.")
 
         tool_call = response.choices[0].message.tool_calls[0]
 
@@ -98,8 +128,14 @@ ITEMS:
         )
 
         # Parse and return categories
-        categories_data = json.loads(tool_call.function.arguments)
-        return [Category(**cat) for cat in categories_data["categories"]]
+        categories_data = json.loads(
+            response.choices[0].message.tool_calls[0].function.arguments
+        )
+        categories_data = [Category(**cat) for cat in categories_data["categories"]]
+        if self.max_categories:
+            return categories_data[: self.max_categories]
+        else:
+            return categories_data
 
     def refine_categories(self, feedback: str) -> List[Category]:
         self.chat_history.append({"role": "user", "content": feedback})
