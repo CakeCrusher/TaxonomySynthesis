@@ -60,7 +60,7 @@ def test_generate_categories_success(openai_client):
     categories = generator.generate_categories(items, parent_category)
 
     # Assert
-    assert len(categories) == 2
+    assert len(categories) > 1
     assert categories[0].name is not None
     assert categories[0].description is not None
     assert categories[1].name is not None

@@ -19,14 +19,13 @@ class GPTClassifier(IClassifier):
     ) -> List[ClassifiedItem]:
         # if stringified items.model_dump() divided by 3 is longer than 60000 characters
         # then divide the items into the upper bound of divinding the stringified items.model_dump() by 60000 characters
-        divisions = (
-            (len(str([item.model_dump() for item in items])) + 30000) // 60000
-        ) + 1
+        item_token_count = len(str([item.model_dump() for item in items])) / 3
+        divisions = ((item_token_count + 30000) // 60000) + 1
         batches = [items]
         if divisions > 1:
             batches = [
-                items[i : i + len(items) // divisions]
-                for i in range(0, len(items), len(items) // divisions)
+                items[i : i + int(len(items) // divisions)]
+                for i in range(0, len(items), int(len(items) // divisions))
             ]
 
         classified_items = []
