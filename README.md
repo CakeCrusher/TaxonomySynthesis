@@ -7,6 +7,14 @@ _Join our [Discord Community](https://discord.gg/jZSVhtwTz6) for questions, disc
 
 _Check out our YouTube [demo video](https://www.youtube.com/shorts/6QWXs241IEo) to see Taxonomy Synthesis in action!_
 
+## Used [Here](https://github.com/CakeCrusher/taxonomy-client/edit/main/README.md)
+### [VIDEO](https://www.youtube.com/shorts/95iyfFygFxs)
+![TaxonomyClient-gif-comp](https://github.com/user-attachments/assets/80f4d9d3-2c7d-466c-a430-aee1bbb61d68)
+
+### Try It: https://cakecrusher.github.io/taxonomy-client/
+A React application providing a user-friendly interface for generating and managing taxonomies using AI.
+
+
 ## Explain Like I'm 5 🤔
 Imagine you have a big box of different animals, but you’re not sure how to group them. You know there are "Mammals" and "Reptiles," but you don’t know the smaller groups they belong to, like which mammals are more similar or which reptiles go together. This tool uses smart AI helpers to figure out those smaller groups for you, like finding out there are "Rodents" and "Primates" among the mammals, and "Lizards" and "Snakes" among the reptiles. It then helps you sort all the animals into the right groups automatically, keeping everything neatly organized!
 
