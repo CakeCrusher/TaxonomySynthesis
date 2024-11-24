@@ -186,7 +186,7 @@ Animals: []
   Reptiles: [🐊, 🐍, 🐢, 🦎]
 ```
 
-## System Diagram 🎨
+## System Diagram ([View in Figma](https://www.figma.com/board/J19T0RN1Hvi1ajDlUtIvOc/TaxonomySynthesis?node-id=11-195&t=40L3ZAgFsncCYO9J-1)) 🎨
 
 For a visual representation of the system architecture and its components, refer to the following diagram:
 
